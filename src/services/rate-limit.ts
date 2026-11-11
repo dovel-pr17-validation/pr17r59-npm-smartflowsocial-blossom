@@ -32,7 +32,7 @@ const BUCKET_IDLE_TTL_MS = 15 * 60 * 1000;
 const REDIS_BUCKET_IDLE_TTL_MS = 15 * 60 * 1000;
 let lastSweepMs = 0;
 let activeProvider: RateLimitProvider | null = null;
-type RedisLikeClient = ReturnType<typeof createClient>;
+type RedisLikeClient = ReturnType<typeof createClient<{}, {}, {}, 2>>;
 let redisClient: RedisLikeClient | null = null;
 
 function sweepExpiredBuckets(
@@ -283,7 +283,7 @@ export async function initializeRateLimitProvider(): Promise<void> {
       "RATE_LIMIT_MODE=redis requires RATE_LIMIT_REDIS_URL to be configured"
     );
   }
-  const client = createClient({ url: redisUrl });
+  const client = createClient({ url: redisUrl, RESP: 2 });
   client.on("error", (error: unknown) => {
     log.warn("Redis rate-limit client error", {
       err: error instanceof Error ? error.message : String(error),
